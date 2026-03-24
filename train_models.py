@@ -3,17 +3,21 @@
 train_models.py — Обучение каскадных моделей тональности отзывов из JSON.
 
 Пайплайн:
-  1. Парсит JSON из указанных файлов или /content
+  1. Парсит все .json из content/ (или указанные файлы)
   2. Балансирует датасет, сохраняет в data/dataset.csv
   3. Строит sentence-transformer эмбеддинги
   4. Обучает бинарную и многоклассовую LightGBM-модели
   5. Сохраняет модели в models/
 
 Запуск:
+  # Все файлы из content/ автоматически:
+  python train_models.py
+
+  # Указать файлы вручную:
   python train_models.py --input content/resident_complex_reviews_report.json content/school_reviews_report.json
 
   # Только сформировать датасет без обучения:
-  python train_models.py --input content/resident_complex_reviews_report.json --dataset-only
+  python train_models.py --dataset-only
 """
 
 import sys
@@ -40,10 +44,10 @@ warnings.filterwarnings('ignore')
 # Пути
 # ──────────────────────────────────────────────
 
-CONTENT_DIR           = Path('/content')
-DATA_DIR              = Path('/data')
-MODELS_DIR            = Path('/models')
-DATASET_PATH          = DATA_DIR / 'dataset.csv'
+CONTENT_DIR           = Path('content')
+DATA_DIR              = Path('data')
+MODELS_DIR            = Path('models')
+DATASET_PATH          = DATA_DIR  / 'dataset.csv'
 BINARY_MODEL_PATH     = MODELS_DIR / 'best_binary_model.pkl'
 MULTICLASS_MODEL_PATH = MODELS_DIR / 'best_multiclass_model.pkl'
 
@@ -226,7 +230,7 @@ def save_models(binary_model, multiclass_model):
     print_ok(f'Многоклассовая: {MULTICLASS_MODEL_PATH}')
     print()
     print('  Запустите анализ:')
-    print('  python analyze_sentiments.py --input content/resident_complex_reviews_report.json')
+    print('  python analyze_sentiments.py')
 
 
 # ──────────────────────────────────────────────

@@ -8,7 +8,8 @@ analyze_sentiments.py — Анализ тональности отзывов и�
   3. Сохраняет результат в CSV
 
 Запуск:
-  python analyze_sentiments.py --input content/resident_complex_reviews_report.json
+  # Все файлы
+  python analyze_sentiments.py
 
   # Несколько файлов:
   python analyze_sentiments.py --input content/resident_complex_reviews_report.json content/school_reviews_report.json
@@ -51,7 +52,7 @@ logging.getLogger('transformers').setLevel(logging.ERROR)
 # Конфигурация
 # ──────────────────────────────────────────────
 
-CONTENT_DIR           = Path('/content')
+CONTENT_DIR           = Path('content')
 BINARY_MODEL_PATH     = 'models/best_binary_model.pkl'
 MULTICLASS_MODEL_PATH = 'models/best_multiclass_model.pkl'
 MODEL_NAME            = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'

@@ -5,7 +5,10 @@ json_parser.py — Парсинг JSON-файлов с отзывами.
 Поддерживаемые форматы:
   - Жилые комплексы: { "resident_complexes": [...], "timestamp": "..." }
   - Школы:           { "schools": [...],            "timestamp": "..." }
-  - Оба формата в одном файле
+  - Больницы:        { "hospitals": [...],           "timestamp": "..." }
+  - Детские сады:    { "kindergartens": [...],       "timestamp": "..." }
+  - Парки:           { "parks": [...],               "timestamp": "..." }
+  - Несколько форматов в одном файле
 
 Используется как модуль из train_models.py и analyze_sentiments.py:
   from json_parser import load_all_json
@@ -99,6 +102,25 @@ def rating_to_sentiment(rating):
 
 
 # ──────────────────────────────────────────────
+# Определение формата
+# ──────────────────────────────────────────────
+
+# Все поддерживаемые форматы: ключ_массива -> group_name
+KNOWN_FORMATS = {
+    'resident_complexes': 'residents',
+    'schools':            'schools',
+    'hospitals':          'hospitals',
+    'kindergartens':      'kindergartens',
+    'parks':              'parks',
+}
+
+
+def detect_formats(data):
+    """Возвращает список (key, group_name) для всех форматов найденных в файле."""
+    return [(key, group) for key, group in KNOWN_FORMATS.items() if key in data]
+
+
+# ──────────────────────────────────────────────
 # Парсинг файлов
 # ──────────────────────────────────────────────
 
@@ -133,13 +155,11 @@ def parse_json_file(filepath, with_sentiment=False):
         except Exception:
             pass
 
-    formats = []
-    if 'resident_complexes' in data: formats.append(('resident_complexes', 'residents'))
-    if 'schools'            in data: formats.append(('schools',            'schools'))
-
+    formats = detect_formats(data)
     if not formats:
+        known = ', '.join(f'"{k}"' for k in KNOWN_FORMATS)
         print(f'  [!] Неизвестный формат в {os.path.basename(filepath)}: '
-              f'нет ключей "resident_complexes" или "schools"')
+              f'ожидается один из {known}')
         return pd.DataFrame()
 
     rows = []
@@ -170,7 +190,7 @@ def parse_json_file(filepath, with_sentiment=False):
                 if with_sentiment:
                     label = rating_to_sentiment(rating)
                     if label is None:
-                        continue  # пропускаем отзывы без рейтинга при обучении
+                        continue
                     row['sentiment'] = label
 
                 rows.append(row)
